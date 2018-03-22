@@ -244,6 +244,9 @@ export default class RestTester extends React.Component<IRestTesterProps, IRestT
       cached: false
     });
 
+    // Get the set URL
+    let { apiUrl } = this.state;
+
     // Store the performed query
     this._storeLastQuery();
 
@@ -256,7 +259,13 @@ export default class RestTester extends React.Component<IRestTesterProps, IRestT
       reqOptions["body"] = reqBody;
     }
 
-    let { apiUrl } = this.state;
+    // Check the search API is used
+    if (apiUrl.toLowerCase().indexOf('_api/search') !== -1) {
+      if (!reqOptions.headers) {
+        reqOptions["headers"] = {};
+      }
+      reqOptions["headers"]["odata-version"] = "3.0";
+    }
 
     // Update tokens in the URL
     apiUrl = this._updateTokens(apiUrl);
