@@ -7,13 +7,13 @@
   "manifestVersion": 2,
   "requiresCustomScript": false,
   "preconfiguredEntries": [{
-    "groupId": "5c03119e-3074-46fd-976b-c60198311f71", // Other
+    "groupId": "5c03119e-3074-46fd-976b-c60198311f71",
     "group": { "default": "Other" },
-    "title": { "default": "RestTester" },
+    "title": { "default": "REST API Tester" },
     "description": { "default": "RestTester description" },
     "officeFabricIconFontName": "TestBeaker",
     "properties": {
-      "description": "RestTester"
+      "description": "REST API Tester"
     }
   }]
 }
