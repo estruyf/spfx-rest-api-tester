@@ -1,0 +1,68 @@
+@import '~@microsoft/sp-office-ui-fabric-core/dist/sass/SPFabricCore.scss';
+
+.restTester {
+  > p:first-child {
+    margin-top: 0;
+    padding-top: 0;
+  }
+
+  table {
+    border-spacing: 0;
+    margin-bottom: 15px;
+    width: 100%;
+  }
+
+  button {
+    margin-right: 15px;
+  }
+
+  .title {
+    color: $ms-color-themePrimary;
+    @include ms-font-xl;
+  }
+
+  .storedTitle, .queryTitle {
+    @include ms-font-l;
+  }
+
+  .storedQueries {
+    width: 80%;
+  }
+
+  .deleteQuery {
+    width: 20%;
+
+    button {
+      width: 100%;
+    }
+  }
+
+  .description {
+    @include ms-fontSize-m;
+  }
+
+  .requestType {
+    width: 10%;
+  }
+
+  .apiInput {
+    width: 90%;
+  }
+
+  .spinner {
+    display: inline-block;
+    margin-left: 15px;
+    margin-top: 6px;
+  }
+
+  .icon {
+    margin-right: 5px;
+  }
+
+  .codeZone {
+    border: 1px solid;
+    border-color: $ms-color-neutralLight;
+    margin-bottom: 15px;
+    overflow-x: auto;
+  }
+}

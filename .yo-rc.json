@@ -1,0 +1,8 @@
+{
+  "@microsoft/generator-sharepoint": {
+    "version": "1.4.1",
+    "libraryName": "rest-tester",
+    "libraryId": "96c4456c-cae4-47e4-ad18-6597045a2391",
+    "environment": "spo"
+  }
+}
