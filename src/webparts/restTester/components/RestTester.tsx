@@ -324,6 +324,7 @@ export default class RestTester extends React.Component<IRestTesterProps, IRestT
             <td className={styles.requestType}>
               <Dropdown selectedKey={this.state.requestType}
                         onChanged={this._requestChanged}
+                        className={styles.methodSelector}
                         options={[
                           { key: 'GET', text: 'GET' },
                           { key: 'POST', text: 'POST' }

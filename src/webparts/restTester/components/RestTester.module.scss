@@ -45,6 +45,19 @@
     width: 10%;
   }
 
+  .methodSelector {
+    :global {
+      .ms-Dropdown-title {
+        background-color: $ms-color-themePrimary;
+        color: $ms-color-white;
+      }
+
+      .ms-Dropdown-caretDownWrapper i {
+        color: $ms-color-white;
+      }
+    }
+  }
+
   .apiInput {
     width: 90%;
   }
