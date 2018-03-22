@@ -332,7 +332,8 @@ export default class RestTester extends React.Component<IRestTesterProps, IRestT
             <td className={styles.apiInput}>
               <TextField placeholder="Specify your SharePoint API URL"
                          value={this.state.apiUrl}
-                         onChanged={this._apiUrlChanged} />
+                         onChanged={this._apiUrlChanged}
+                         onKeyUp={(e: React.KeyboardEvent<any>) => e.key === "Enter" && this._runQuery()} />
             </td>
           </tr>
         </table>
