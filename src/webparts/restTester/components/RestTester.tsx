@@ -4,7 +4,7 @@ import { IRestTesterProps } from './IRestTesterProps';
 import { escape } from '@microsoft/sp-lodash-subset';
 import { SPHttpClient, SPHttpClientResponse, ISPHttpClientOptions } from '@microsoft/sp-http';
 import { TextField } from 'office-ui-fabric-react/lib/TextField';
-import { DefaultButton } from 'office-ui-fabric-react/lib/Button';
+import { DefaultButton, ActionButton } from 'office-ui-fabric-react/lib/Button';
 import { Dropdown, IDropdownOption } from 'office-ui-fabric-react/lib/Dropdown';
 import { Spinner, SpinnerSize } from 'office-ui-fabric-react/lib/Spinner';
 import { Label } from 'office-ui-fabric-react/lib/Label';
@@ -12,7 +12,18 @@ import { Icon } from 'office-ui-fabric-react/lib/Icon';
 import * as brace from 'brace';
 import AceEditor from 'react-ace';
 import 'brace/mode/json';
+import 'brace/mode/typescript';
 import 'brace/theme/github';
+import jsonToTS from 'json-to-ts';
+
+/**
+ * TODO: Adding header support
+ */
+
+export enum ResultType {
+  body = 1,
+  interface
+}
 
 export interface IStoredQuery {
   requestType: string;
@@ -22,11 +33,13 @@ export interface IStoredQuery {
 
 export interface IRestTesterState extends IStoredQuery {
   data: any;
+  status: number;
   loading: boolean;
   cached: boolean;
   storage: boolean;
   storedQueries: IDropdownOption[];
   selectedStoredQuery: number | string;
+  resultType: ResultType;
 }
 
 export default class RestTester extends React.Component<IRestTesterProps, IRestTesterState> {
@@ -43,12 +56,14 @@ export default class RestTester extends React.Component<IRestTesterProps, IRestT
       requestType: "GET",
       apiUrl: `${this.props.context.pageContext.web.absoluteUrl}/_api/web`,
       reqBody: "{}",
-      data: null,
+      data: "",
+      status: null,
       loading: false,
       cached: false,
       storage: typeof localStorage !== "undefined",
       storedQueries: [],
-      selectedStoredQuery: null
+      selectedStoredQuery: null,
+      resultType: ResultType.body
     };
   }
 
@@ -241,6 +256,7 @@ export default class RestTester extends React.Component<IRestTesterProps, IRestT
     this.setState({
       loading: true,
       data: "",
+      status: null,
       cached: false
     });
 
@@ -271,7 +287,12 @@ export default class RestTester extends React.Component<IRestTesterProps, IRestT
     apiUrl = this._updateTokens(apiUrl);
 
     this.props.context.spHttpClient.fetch(apiUrl, SPHttpClient.configurations.v1, reqOptions)
-    .then((data: SPHttpClientResponse) => data.json())
+    .then((data: SPHttpClientResponse) => {
+      this.setState({
+        status: data.status
+      });
+      return data.json();
+    })
     .then((data: any) => {
       this.setState({
         data: data,
@@ -281,10 +302,22 @@ export default class RestTester extends React.Component<IRestTesterProps, IRestT
   }
 
   /**
+   * Switch the result tab
+   */
+  private _switchResultTab = (val: ResultType) => {
+    this.setState({
+      resultType: val
+    });
+  }
+
+  /**
    * Default React render mothod
    */
   public render(): React.ReactElement<IRestTesterProps> {
+    // Stringify the rest response
     const restResponse: string = this.state.data ? JSON.stringify(this.state.data, null, 2) : "";
+    // Create the TS interface
+    const interfaceObj: string = this.state.data ? jsonToTS(this.state.data).join("\n\n") : "";
 
     return (
       <div className={ styles.restTester }>
@@ -371,20 +404,55 @@ export default class RestTester extends React.Component<IRestTesterProps, IRestT
           this.state.loading && <Spinner className={styles.spinner} size={SpinnerSize.medium} />
         }
 
-        <p className={ styles.title }>API Result</p>
+        {
+          /**
+           * Result information
+           */
+        }
 
-        <AceEditor mode="json"
-                   theme="github"
-                   className={styles.codeZone}
-                   value={restResponse}
-                   readOnly={true}
-                   editorProps={{ $blockScrolling: true }}
-                   setOptions={{
-                     //  wrap: true,
-                     showPrintMargin: false,
-                     maxLines: restResponse ? restResponse.split(/\r\n|\r|\n/).length : 15
-                   }}
-                   width="100%" />
+        <div className={styles.resultSection}>
+          <p className={ styles.title }>API Result {this.state.status && `- Status code: ${this.state.status}`}</p>
+
+          <div className={styles.tabs}>
+            <ActionButton onClick={() => this._switchResultTab(ResultType.body)} className={`${this.state.resultType === ResultType.body && styles.selectedTab}`}>
+              Response preview
+            </ActionButton>
+
+            <ActionButton onClick={() => this._switchResultTab(ResultType.interface)} className={`${this.state.resultType === ResultType.interface && styles.selectedTab}`}>
+              TypeScript interface
+            </ActionButton>
+          </div>
+
+          {
+            this.state.resultType === ResultType.body ? (
+              <AceEditor mode="json"
+                        theme="github"
+                        className={styles.codeZone}
+                        value={restResponse}
+                        readOnly={true}
+                        editorProps={{ $blockScrolling: true }}
+                        setOptions={{
+                          //  wrap: true,
+                          showPrintMargin: false,
+                          maxLines: restResponse ? restResponse.split(/\r\n|\r|\n/).length : 15
+                        }}
+                        width="100%" />
+            ) : (
+              <AceEditor mode="typescript"
+                        theme="github"
+                        className={styles.codeZone}
+                        value={interfaceObj}
+                        readOnly={true}
+                        editorProps={{ $blockScrolling: true }}
+                        setOptions={{
+                          //  wrap: true,
+                          showPrintMargin: false,
+                          maxLines: restResponse ? interfaceObj.split(/\r\n|\r|\n/).length : 15
+                        }}
+                        width="100%" />
+            )
+          }
+        </div>
       </div>
     );
   }

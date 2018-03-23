@@ -72,6 +72,21 @@
     margin-right: 5px;
   }
 
+  .resultSection {
+    .title {
+      margin-bottom: 5px;
+    }
+  }
+
+  .tabs {
+    margin-bottom: 15px;
+  }
+
+  .selectedTab {
+    border-bottom: 1px solid;
+    border-bottom-color: $ms-color-themePrimary;
+  }
+
   .codeZone {
     border: 1px solid;
     border-color: $ms-color-neutralLight;
