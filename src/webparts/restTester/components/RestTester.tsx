@@ -9,37 +9,66 @@ import { Dropdown, IDropdownOption } from 'office-ui-fabric-react/lib/Dropdown';
 import { Spinner, SpinnerSize } from 'office-ui-fabric-react/lib/Spinner';
 import { Label } from 'office-ui-fabric-react/lib/Label';
 import { Icon } from 'office-ui-fabric-react/lib/Icon';
+import { Checkbox } from 'office-ui-fabric-react/lib/Checkbox';
+import { MessageBar, MessageBarType } from 'office-ui-fabric-react/lib/MessageBar';
 import * as brace from 'brace';
 import AceEditor from 'react-ace';
 import 'brace/mode/json';
 import 'brace/mode/typescript';
 import 'brace/theme/github';
-import jsonToTS from 'json-to-ts';
+import 'brace/ext/searchbox';
+import HeadersInput from './HeadersInput';
+import SnippetBuilder from './SnippetBuilder';
+import ResponseInfo from './ResponseInfo';
 
 /**
- * TODO: Adding header support
+ * TODO: Allow other API support (not MS Graph)
+ * - Check for SP URL or MS Graph (show URL to Graph Explorer)
+ * TODO: API URL intellisense
  */
 
 export enum ResultType {
   body = 1,
-  interface
+  interface,
+  codeSnippet
+}
+
+export enum RequestTab {
+  body = 1,
+  headers
 }
 
 export interface IStoredQuery {
   requestType: string;
   apiUrl: string;
   reqBody: string;
+  customHeaders: IHeader[];
 }
 
 export interface IRestTesterState extends IStoredQuery {
   data: any;
-  status: number;
+  status: number | string;
   loading: boolean;
   cached: boolean;
   storage: boolean;
   storedQueries: IDropdownOption[];
   selectedStoredQuery: number | string;
   resultType: ResultType;
+  wrapCode: boolean;
+  requestTab: RequestTab;
+  requestInfo: IRequestInfo;
+}
+
+export interface IHeader {
+  key: string;
+  value: string;
+}
+
+export interface IRequestInfo {
+  url: string;
+  method: string;
+  headers: HeadersInit;
+  body: string;
 }
 
 export default class RestTester extends React.Component<IRestTesterProps, IRestTesterState> {
@@ -63,7 +92,11 @@ export default class RestTester extends React.Component<IRestTesterProps, IRestT
       storage: typeof localStorage !== "undefined",
       storedQueries: [],
       selectedStoredQuery: null,
-      resultType: ResultType.body
+      resultType: ResultType.body,
+      wrapCode: false,
+      customHeaders: [{ key: "", value: "" }],
+      requestTab: RequestTab.body,
+      requestInfo: null
     };
   }
 
@@ -122,7 +155,8 @@ export default class RestTester extends React.Component<IRestTesterProps, IRestT
       const toStore: IStoredQuery = {
         requestType: this.state.requestType,
         apiUrl: this.state.apiUrl,
-        reqBody: this.state.reqBody
+        reqBody: this.state.reqBody,
+        customHeaders: this.state.customHeaders
       };
 
       localStorage.setItem(`resttester-apiUrl-${this.props.context.manifest.id}`, JSON.stringify(toStore));
@@ -143,6 +177,7 @@ export default class RestTester extends React.Component<IRestTesterProps, IRestT
           requestType: parsedQuery.requestType,
           apiUrl: parsedQuery.apiUrl,
           reqBody: parsedQuery.reqBody,
+          customHeaders: parsedQuery.customHeaders ? parsedQuery.customHeaders : [{ key: "", value: "" }],
           cached: true
         });
       }
@@ -176,7 +211,8 @@ export default class RestTester extends React.Component<IRestTesterProps, IRestT
       this._allQueries.push({
         requestType: this.state.requestType,
         apiUrl: this.state.apiUrl,
-        reqBody: this.state.reqBody
+        reqBody: this.state.reqBody,
+        customHeaders: this.state.customHeaders
       });
 
       // Update the stored queries dropdown with the new values
@@ -198,7 +234,8 @@ export default class RestTester extends React.Component<IRestTesterProps, IRestT
         selectedStoredQuery: val.key,
         requestType: newQuery.requestType,
         apiUrl: newQuery.apiUrl,
-        reqBody: newQuery.reqBody
+        reqBody: newQuery.reqBody,
+        customHeaders: newQuery.customHeaders ? newQuery.customHeaders : [{ key: "", value: "" }]
       });
     } else {
       this.setState({
@@ -260,53 +297,139 @@ export default class RestTester extends React.Component<IRestTesterProps, IRestT
       cached: false
     });
 
-    // Get the set URL
-    let { apiUrl } = this.state;
+    // Get state properties
+    let { apiUrl, requestType, reqBody, customHeaders } = this.state;
 
     // Store the performed query
     this._storeLastQuery();
 
     let reqOptions: ISPHttpClientOptions = {
-      method: this.state.requestType
+      method: requestType
     };
-    if (this.state.requestType === "POST") {
-      let { reqBody } = this.state;
+    if (requestType === "POST") {
       reqBody = this._updateTokens(reqBody);
       reqOptions["body"] = reqBody;
     }
 
+    // Create new headers object
+    const reqHeaders: HeadersInit = {};
+
     // Check the search API is used
     if (apiUrl.toLowerCase().indexOf('_api/search') !== -1) {
-      if (!reqOptions.headers) {
-        reqOptions["headers"] = {};
-      }
-      reqOptions["headers"]["odata-version"] = "3.0";
+      reqHeaders["odata-version"] = "3.0";
     }
+
+    // Set all custom headers
+    if (customHeaders.length > 1) {
+      // Add all custom set headers
+      for (const header of customHeaders) {
+        if (header.key) {
+          reqHeaders[header.key] = header.value;
+        }
+      }
+    }
+
+    // Add all headers to the options object
+    reqOptions["headers"] = reqHeaders;
 
     // Update tokens in the URL
     apiUrl = this._updateTokens(apiUrl);
 
-    this.props.context.spHttpClient.fetch(apiUrl, SPHttpClient.configurations.v1, reqOptions)
-    .then((data: SPHttpClientResponse) => {
-      this.setState({
-        status: data.status
+    try {
+      this.props.context.spHttpClient.fetch(apiUrl, SPHttpClient.configurations.v1, reqOptions)
+      .then((data: SPHttpClientResponse) => {
+        this.setState({
+          status: data.status
+        });
+        return data.json();
+      })
+      .then((data: any) => {
+        this.setState({
+          data: data,
+          loading: false,
+          requestInfo: {
+            url: this.state.apiUrl,
+            method: reqOptions.method,
+            headers: reqOptions.headers,
+            body: this.state.reqBody
+          }
+        });
+      }).catch(err => {
+        this.setState({
+          data: err,
+          loading: false,
+          status: "Error",
+          requestInfo: null
+        });
       });
-      return data.json();
-    })
-    .then((data: any) => {
+    } catch (err) {
+      debugger;
       this.setState({
-        data: data,
-        loading: false
+        data: err && err.message && err.stack ? { msg: err.message, stack: err.stack } : "Something went wrong, you might find a clue in the browser console.",
+        loading: false,
+        status: "Error"
       });
+    }
+  }
+
+  /**
+   * Switch the request tab
+   */
+  private _switchRequestTab = (val: RequestTab): void => {
+    this.setState({
+      requestTab: val
     });
   }
 
   /**
    * Switch the result tab
    */
-  private _switchResultTab = (val: ResultType) => {
+  private _switchResultTab = (val: ResultType): void => {
     this.setState({
       resultType: val
+    });
+  }
+
+  /**
+   * Trigger code wrapping
+   */
+  private _triggerCodeWrapping = (ev: React.FormEvent<HTMLElement>, isChecked: boolean): void => {
+    this.setState({
+      wrapCode: isChecked
+    });
+  }
+
+  /**
+   * Trigger an header update
+   */
+  private _updateHeader = (i: number, key: string, value: string): void => {
+    const allHeaders = [...this.state.customHeaders];
+
+    // Check if key and value contain data
+    if (!key && !value) {
+      // Remove item
+      allHeaders.splice(i, 1);
+
+      // Check if a new item needs to be added
+      if (allHeaders.length === 0) {
+        // Add an new empty item
+        allHeaders.push({ key: "", value: "" });
+      }
+    } else {
+      // Update the current item
+      allHeaders[i].key = key;
+      allHeaders[i].value = value;
+
+      // Check if the last item is still empty, otherwise we need to add a new header
+      const lastItem = allHeaders[allHeaders.length-1];
+      if (lastItem.key) {
+        // Add an new empty item
+        allHeaders.push({ key: "", value: "" });
+      }
+    }
+
+    this.setState({
+      customHeaders: allHeaders
     });
   }
 
@@ -314,36 +437,30 @@ export default class RestTester extends React.Component<IRestTesterProps, IRestT
    * Default React render mothod
    */
   public render(): React.ReactElement<IRestTesterProps> {
-    // Stringify the rest response
-    const restResponse: string = this.state.data ? JSON.stringify(this.state.data, null, 2) : "";
-    // Create the TS interface
-    const interfaceObj: string = this.state.data ? jsonToTS(this.state.data).join("\n\n") : "";
-
     return (
       <div className={ styles.restTester }>
-        <p className={ styles.title }>API tester</p>
+        <span className={ styles.title }>API tester <a className={styles.credits} href="javascript:;" onClick={() => this.props.context.propertyPane.open()} title="Elio Struyf">Created by Elio Struyf</a></span>
 
         {
           this.state.storage && (
-            <div>
-              <p className={ styles.storedTitle }>Use one of your stored API calls</p>
-              <table>
-                <tr>
-                  <td className={styles.storedQueries}>
-                    <Dropdown selectedKey={this.state.selectedStoredQuery}
-                              onChanged={this._useSelectedQuery}
-                              options={[
-                                { key: 'EMPTY', text: '' },
-                                ...this.state.storedQueries
-                              ]} />
-                  </td>
-                  <td className={styles.deleteQuery}>
-                    <DefaultButton onClick={this._deleteCrntQuery} disabled={!this.state.storage}>
-                      <Icon className={styles.icon} iconName="Delete" /> Delete query
-                    </DefaultButton>
-                  </td>
-                </tr>
-              </table>
+            <div className={styles.row}>
+              <div className={styles.col12}>
+                <p className={ styles.storedTitle }>Use one of your stored API calls</p>
+              </div>
+              <div className={styles.col10}>
+                <Dropdown selectedKey={this.state.selectedStoredQuery}
+                          onChanged={this._useSelectedQuery}
+                          placeHolder="Select one of your stored queries"
+                          options={[
+                            { key: 'EMPTY', text: '' },
+                            ...this.state.storedQueries
+                          ]} />
+              </div>
+              <div className={`${styles.col2} ${styles.deleteQuery}`}>
+                <DefaultButton onClick={this._deleteCrntQuery} disabled={!this.state.storage}>
+                  <Icon className={styles.icon} iconName="Delete" /> Delete query
+                </DefaultButton>
+              </div>
             </div>
           )
         }
@@ -352,30 +469,37 @@ export default class RestTester extends React.Component<IRestTesterProps, IRestT
 
         <p className={ styles.description }>{`The following tokens can be used in the URL and body fields: {webUrl} | {listId} | {itemId}`}</p>
 
-        <table>
-          <tr>
-            <td className={styles.requestType}>
-              <Dropdown selectedKey={this.state.requestType}
-                        onChanged={this._requestChanged}
-                        className={styles.methodSelector}
-                        options={[
-                          { key: 'GET', text: 'GET' },
-                          { key: 'POST', text: 'POST' }
-                        ]} />
-            </td>
-            <td className={styles.apiInput}>
-              <TextField placeholder="Specify your SharePoint API URL"
-                         value={this.state.apiUrl}
-                         onChanged={this._apiUrlChanged}
-                         onKeyUp={(e: React.KeyboardEvent<any>) => e.key === "Enter" && this._runQuery()} />
-            </td>
-          </tr>
-        </table>
+        <div className={styles.row}>
+          <div className={styles.col1}>
+            <Dropdown selectedKey={this.state.requestType}
+                      onChanged={this._requestChanged}
+                      className={styles.methodSelector}
+                      options={[
+                        { key: 'GET', text: 'GET' },
+                        { key: 'POST', text: 'POST' }
+                      ]} />
+          </div>
+          <div className={styles.col11}>
+            <TextField placeholder="Specify your SharePoint API URL"
+                       value={this.state.apiUrl}
+                       onChanged={this._apiUrlChanged}
+                       onKeyUp={(e: React.KeyboardEvent<any>) => e.key === "Enter" && this._runQuery()} />
+          </div>
+        </div>
+
+        <div className={styles.tabs}>
+          <ActionButton onClick={() => this._switchRequestTab(RequestTab.body)} className={`${this.state.requestTab === RequestTab.body && styles.selectedTab}`}>
+            Request body
+          </ActionButton>
+
+          <ActionButton onClick={() => this._switchRequestTab(RequestTab.headers)} className={`${this.state.requestTab === RequestTab.headers && styles.selectedTab}`}>
+            Request headers { this.state.customHeaders.length > 1 && `(${this.state.customHeaders.length - 1})` }
+          </ActionButton>
+        </div>
 
         {
-          this.state.requestType === "POST" && (
-            <div>
-              <Label>Request body</Label>
+          this.state.requestTab === RequestTab.body ? (
+            this.state.requestType === "POST" ? (
               <AceEditor mode="json"
                         theme="github"
                         className={styles.codeZone}
@@ -387,6 +511,18 @@ export default class RestTester extends React.Component<IRestTesterProps, IRestT
                         }}
                         height="150px"
                         width="100%" />
+            ) : (
+              <MessageBar className={styles.messageBar} messageBarType={MessageBarType.info}>
+                Body not supported with GET requests
+              </MessageBar>
+            )
+          ) : (
+            <div>
+              {
+                this.state.customHeaders.map((ch: IHeader, index: number) => (
+                  <HeadersInput hIndex={index} hKey={ch.key} hValue={ch.value} fUpdate={this._updateHeader} />
+                ))
+              }
             </div>
           )
         }
@@ -409,50 +545,13 @@ export default class RestTester extends React.Component<IRestTesterProps, IRestT
            * Result information
            */
         }
-
-        <div className={styles.resultSection}>
-          <p className={ styles.title }>API Result {this.state.status && `- Status code: ${this.state.status}`}</p>
-
-          <div className={styles.tabs}>
-            <ActionButton onClick={() => this._switchResultTab(ResultType.body)} className={`${this.state.resultType === ResultType.body && styles.selectedTab}`}>
-              Response preview
-            </ActionButton>
-
-            <ActionButton onClick={() => this._switchResultTab(ResultType.interface)} className={`${this.state.resultType === ResultType.interface && styles.selectedTab}`}>
-              TypeScript interface
-            </ActionButton>
-          </div>
-
-          {
-            this.state.resultType === ResultType.body ? (
-              <AceEditor mode="json"
-                        theme="github"
-                        className={styles.codeZone}
-                        value={restResponse}
-                        readOnly={true}
-                        editorProps={{ $blockScrolling: true }}
-                        setOptions={{
-                          //  wrap: true,
-                          showPrintMargin: false,
-                          maxLines: restResponse ? restResponse.split(/\r\n|\r|\n/).length : 15
-                        }}
-                        width="100%" />
-            ) : (
-              <AceEditor mode="typescript"
-                        theme="github"
-                        className={styles.codeZone}
-                        value={interfaceObj}
-                        readOnly={true}
-                        editorProps={{ $blockScrolling: true }}
-                        setOptions={{
-                          //  wrap: true,
-                          showPrintMargin: false,
-                          maxLines: restResponse ? interfaceObj.split(/\r\n|\r|\n/).length : 15
-                        }}
-                        width="100%" />
-            )
-          }
-        </div>
+        <ResponseInfo status={this.state.status}
+                      requestInfo={this.state.requestInfo}
+                      resultType={this.state.resultType}
+                      wrapCode={this.state.wrapCode}
+                      data={this.state.data}
+                      fSwitchTab={this._switchResultTab}
+                      fTriggerCodeWrap={this._triggerCodeWrapping} />
       </div>
     );
   }
