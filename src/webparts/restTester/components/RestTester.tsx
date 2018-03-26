@@ -283,6 +283,8 @@ export default class RestTester extends React.Component<IRestTesterProps, IRestT
     val = val.replace(/{webUrl}/g, this.props.context.pageContext.web.absoluteUrl);
     val = val.replace(/{listId}/g, this.props.context.pageContext.list.id.toString());
     val = val.replace(/{itemId}/g, this.props.context.pageContext.listItem.id.toString());
+    val = val.replace(/{siteId}/g, this.props.context.pageContext.site.id.toString());
+    //val = val.replace(/{departmentId}/g, this.props.context.pageContext.site.id.toString());
     return val;
   }
 
@@ -467,7 +469,7 @@ export default class RestTester extends React.Component<IRestTesterProps, IRestT
 
         <p className={ styles.queryTitle }>Modify your API call</p>
 
-        <p className={ styles.description }>{`The following tokens can be used in the URL and body fields: {webUrl} | {listId} | {itemId}`}</p>
+        <p className={ styles.description }>{`The following tokens can be used in the URL and body fields: {siteId} | {webUrl} | {listId} | {itemId}`}</p>
 
         <div className={styles.row}>
           <div className={styles.col1}>

@@ -52,6 +52,7 @@ export default class SnippetBuilder extends React.Component<ISnippetBuilderProps
     val = val.replace(/{webUrl}/g, "${this.context.pageContext.web.absoluteUrl}");
     val = val.replace(/{listId}/g, "${this.context.pageContext.list.id}");
     val = val.replace(/{itemId}/g, "${this.context.pageContext.listItem.id}");
+    val = val.replace(/{siteId}/g, "${this.context.pageContext.site.id}");
     return val;
   }
 
