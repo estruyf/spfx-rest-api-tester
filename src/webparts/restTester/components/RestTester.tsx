@@ -20,11 +20,11 @@ import 'brace/ext/searchbox';
 import HeadersInput from './HeadersInput';
 import SnippetBuilder from './SnippetBuilder';
 import ResponseInfo from './ResponseInfo';
+import ApiSuggestions from './ApiSuggestions';
 
 /**
  * TODO: Allow other API support (not MS Graph)
  * - Check for SP URL or MS Graph (show URL to Graph Explorer)
- * TODO: API URL intellisense
  */
 
 export enum ResultType {
@@ -38,8 +38,17 @@ export enum RequestTab {
   headers
 }
 
+export enum Methods {
+  GET = 1,
+  POST,
+  PUT,
+  PATCH,
+  DELETE,
+  HEAD
+}
+
 export interface IStoredQuery {
-  requestType: string;
+  requestType: Methods | string;
   apiUrl: string;
   reqBody: string;
   customHeaders: IHeader[];
@@ -57,6 +66,7 @@ export interface IRestTesterState extends IStoredQuery {
   wrapCode: boolean;
   requestTab: RequestTab;
   requestInfo: IRequestInfo;
+  showSuggestions: boolean;
 }
 
 export interface IHeader {
@@ -82,7 +92,7 @@ export default class RestTester extends React.Component<IRestTesterProps, IRestT
 
     // Initialize state
     this.state = {
-      requestType: "GET",
+      requestType: Methods.GET,
       apiUrl: `${this.props.context.pageContext.web.absoluteUrl}/_api/web`,
       reqBody: "{}",
       data: "",
@@ -96,7 +106,8 @@ export default class RestTester extends React.Component<IRestTesterProps, IRestT
       wrapCode: false,
       customHeaders: [{ key: "", value: "" }],
       requestTab: RequestTab.body,
-      requestInfo: null
+      requestInfo: null,
+      showSuggestions: false
     };
   }
 
@@ -124,7 +135,7 @@ export default class RestTester extends React.Component<IRestTesterProps, IRestT
    */
   private _requestChanged = (val: IDropdownOption) => {
     this.setState({
-      requestType: val.key as string,
+      requestType: val.key as number,
       reqBody: "{}"
     });
   }
@@ -153,7 +164,7 @@ export default class RestTester extends React.Component<IRestTesterProps, IRestT
   private _storeLastQuery = () => {
     if (this.state.storage) {
       const toStore: IStoredQuery = {
-        requestType: this.state.requestType,
+        requestType: Methods[this.state.requestType],
         apiUrl: this.state.apiUrl,
         reqBody: this.state.reqBody,
         customHeaders: this.state.customHeaders
@@ -174,7 +185,7 @@ export default class RestTester extends React.Component<IRestTesterProps, IRestT
         const parsedQuery: IStoredQuery = JSON.parse(storedQuery);
 
         this.setState({
-          requestType: parsedQuery.requestType,
+          requestType: typeof parsedQuery.requestType === "string" ? Methods[parsedQuery.requestType] : parsedQuery.requestType,
           apiUrl: parsedQuery.apiUrl,
           reqBody: parsedQuery.reqBody,
           customHeaders: parsedQuery.customHeaders ? parsedQuery.customHeaders : [{ key: "", value: "" }],
@@ -209,7 +220,7 @@ export default class RestTester extends React.Component<IRestTesterProps, IRestT
 
       // Add the current query to the list
       this._allQueries.push({
-        requestType: this.state.requestType,
+        requestType: Methods[this.state.requestType],
         apiUrl: this.state.apiUrl,
         reqBody: this.state.reqBody,
         customHeaders: this.state.customHeaders
@@ -232,7 +243,7 @@ export default class RestTester extends React.Component<IRestTesterProps, IRestT
       const newQuery = this._allQueries[val.key];
       this.setState({
         selectedStoredQuery: val.key,
-        requestType: newQuery.requestType,
+        requestType: typeof newQuery.requestType === "string" ? Methods[newQuery.requestType] : newQuery.requestType,
         apiUrl: newQuery.apiUrl,
         reqBody: newQuery.reqBody,
         customHeaders: newQuery.customHeaders ? newQuery.customHeaders : [{ key: "", value: "" }]
@@ -298,6 +309,9 @@ export default class RestTester extends React.Component<IRestTesterProps, IRestT
       cached: false
     });
 
+    // Hiding the suggestions
+    this._hideSuggestions();
+
     // Get state properties
     let { apiUrl, requestType, reqBody, customHeaders } = this.state;
 
@@ -305,9 +319,9 @@ export default class RestTester extends React.Component<IRestTesterProps, IRestT
     this._storeLastQuery();
 
     let reqOptions: ISPHttpClientOptions = {
-      method: requestType
+      method: Methods[requestType]
     };
-    if (requestType === "POST") {
+    if (requestType !== Methods.GET && requestType !== Methods.HEAD) {
       reqBody = this._updateTokens(reqBody);
       reqOptions["body"] = reqBody;
     }
@@ -364,7 +378,6 @@ export default class RestTester extends React.Component<IRestTesterProps, IRestT
         });
       });
     } catch (err) {
-      debugger;
       this.setState({
         data: err && err.message && err.stack ? { msg: err.message, stack: err.stack } : "Something went wrong, you might find a clue in the browser console.",
         loading: false,
@@ -435,6 +448,35 @@ export default class RestTester extends React.Component<IRestTesterProps, IRestT
   }
 
   /**
+   * Update the API URL from the suggestion
+   */
+  private _updateApiUrl = (apiUrl: string) => {
+    this.setState({
+      apiUrl
+    });
+    // Hiding the suggestions
+    this._hideSuggestions();
+  }
+
+  /**
+   * Trigger the suggestions to show
+   */
+  private _showSuggestions = () => {
+    this.setState({
+      showSuggestions: true
+    });
+  }
+
+  /**
+   * Trigger the suggestions to hide
+   */
+  private _hideSuggestions = () => {
+    this.setState({
+      showSuggestions: false
+    });
+  }
+
+  /**
    * Default React render mothod
    */
   public render(): React.ReactElement<IRestTesterProps> {
@@ -476,15 +518,28 @@ export default class RestTester extends React.Component<IRestTesterProps, IRestT
                       onChanged={this._requestChanged}
                       className={styles.methodSelector}
                       options={[
-                        { key: 'GET', text: 'GET' },
-                        { key: 'POST', text: 'POST' }
+                        { key: Methods.GET, text: 'GET' },
+                        { key: Methods.POST, text: 'POST' },
+                        { key: Methods.PUT, text: 'PUT' },
+                        { key: Methods.PATCH, text: 'PATCH' },
+                        { key: Methods.DELETE, text: 'DELETE' },
+                        { key: Methods.HEAD, text: 'HEAD' }
                       ]} />
           </div>
-          <div className={styles.col11}>
+          <div className={`${styles.col11} ${styles.queryInput}`}>
             <TextField placeholder="Specify your SharePoint API URL"
                        value={this.state.apiUrl}
                        onChanged={this._apiUrlChanged}
-                       onKeyUp={(e: React.KeyboardEvent<any>) => e.key === "Enter" && this._runQuery()} />
+                       onKeyUp={(e: React.KeyboardEvent<any>) => e.key === "Enter" && this._runQuery()}
+                       onFocus={this._showSuggestions}
+                       onBlur={() => setTimeout(() => this._hideSuggestions(), 100)} />
+
+            {
+              this.state.showSuggestions && (
+                <ApiSuggestions inputVal={this.state.apiUrl}
+                                fChangeApiUrl={this._updateApiUrl} />
+              )
+            }
           </div>
         </div>
 
@@ -500,7 +555,7 @@ export default class RestTester extends React.Component<IRestTesterProps, IRestT
 
         {
           this.state.requestTab === RequestTab.body ? (
-            this.state.requestType === "POST" ? (
+            this.state.requestType !== Methods.GET && this.state.requestType !== Methods.HEAD ? (
               <AceEditor mode="json"
                         theme="github"
                         className={styles.codeZone}
@@ -514,7 +569,7 @@ export default class RestTester extends React.Component<IRestTesterProps, IRestT
                         width="100%" />
             ) : (
               <MessageBar className={styles.messageBar} messageBarType={MessageBarType.info}>
-                Body not supported with GET requests
+                Body not supported with GET/HEAD requests
               </MessageBar>
             )
           ) : (

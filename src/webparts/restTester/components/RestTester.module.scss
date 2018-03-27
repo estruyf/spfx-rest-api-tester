@@ -152,3 +152,32 @@
     overflow-x: auto;
   }
 }
+
+.queryInput {
+  position: relative;
+}
+
+.suggestions {
+  background-color: $ms-color-white;
+  border: 1px solid;
+  border-color: $ms-color-neutralTertiaryAlt;
+  max-height: 200px;
+  left: 8px;
+  list-style: none;
+  overflow-y: auto;
+  padding: 0;
+  position: absolute;
+  right: 8px;
+  z-index: 99;
+
+  a {
+    color: $ms-color-neutralPrimary;
+    display: block;
+    padding: 10px 15px;
+    text-decoration: none;
+
+    &:hover {
+      background-color: $ms-color-neutralLighterAlt;
+    }
+  }
+}

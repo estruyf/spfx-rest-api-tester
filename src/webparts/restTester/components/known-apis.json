@@ -1,0 +1,10 @@
+{
+  "api": [
+    "_api/web",
+    "_api/web/Lists",
+    "_api/web/Lists(guid'{listId}')",
+    "_api/web/Lists/GetByTitle('<your-title>')",
+    "_api/web/Lists(guid'{listId}')/Items",
+    "_api/web/Lists/GetByTitle('<your-title>')/Items"
+  ]
+}
