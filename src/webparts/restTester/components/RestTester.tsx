@@ -284,7 +284,6 @@ export default class RestTester extends React.Component<IRestTesterProps, IRestT
     val = val.replace(/{listId}/g, this.props.context.pageContext.list.id.toString());
     val = val.replace(/{itemId}/g, this.props.context.pageContext.listItem.id.toString());
     val = val.replace(/{siteId}/g, this.props.context.pageContext.site.id.toString());
-    //val = val.replace(/{departmentId}/g, this.props.context.pageContext.site.id.toString());
     return val;
   }
 
