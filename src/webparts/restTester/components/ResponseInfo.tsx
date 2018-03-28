@@ -6,6 +6,7 @@ import AceEditor from 'react-ace';
 import SnippetBuilder from './SnippetBuilder';
 import { ResultType, IRequestInfo } from './RestTester';
 import jsonToTS from 'json-to-ts';
+import { MessageBar, MessageBarType } from 'office-ui-fabric-react/lib/components/MessageBar';
 
 export interface IResponseInfoProps {
   status: number | string;
@@ -29,7 +30,15 @@ export default class ResponseInfo extends React.Component<IResponseInfoProps, IR
 
     return (
       <div className={styles.resultSection}>
-        <p className={ styles.title }>API Result {this.props.status && `- Status code: ${this.props.status}`}</p>
+        <p className={ styles.title }>API Result</p>
+
+        {
+          this.props.status && (
+            <MessageBar className={styles.respMessageBar} messageBarType={(this.props.status >= 200 && this.props.status < 300) ? MessageBarType.success : MessageBarType.error}>
+              Status code: {this.props.status} {(this.props.requestInfo && this.props.requestInfo.absUrl) && <span>- Called URL: {this.props.requestInfo.absUrl}</span>}
+            </MessageBar>
+          )
+        }
 
         <div className={styles.tabs}>
           <ActionButton onClick={() => this.props.fSwitchTab(ResultType.body)} className={`${this.props.resultType === ResultType.body && styles.selectedTab}`}>

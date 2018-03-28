@@ -54,6 +54,10 @@
     margin-bottom: 15px;
   }
 
+  .respMessageBar {
+    margin-bottom: 5px;
+  }
+
   .title {
     @include ms-font-xl;
     color: $ms-color-themePrimary;

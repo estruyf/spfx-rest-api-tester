@@ -54,6 +54,7 @@ export default class SnippetBuilder extends React.Component<ISnippetBuilderProps
     val = val.replace(/{listId}/g, "${this.context.pageContext.list.id}");
     val = val.replace(/{itemId}/g, "${this.context.pageContext.listItem.id}");
     val = val.replace(/{siteId}/g, "${this.context.pageContext.site.id}");
+    val = val.replace(/{userId}/g, "${this.context.pageContext.legacyPageContext.userId}");
     return val;
   }
 

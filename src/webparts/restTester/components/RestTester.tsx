@@ -76,6 +76,7 @@ export interface IHeader {
 
 export interface IRequestInfo {
   url: string;
+  absUrl: string;
   method: string;
   headers: HeadersInit;
   body: string;
@@ -296,6 +297,7 @@ export default class RestTester extends React.Component<IRestTesterProps, IRestT
     val = val.replace(/{listId}/g, this.props.context.pageContext.list.id.toString());
     val = val.replace(/{itemId}/g, this.props.context.pageContext.listItem.id.toString());
     val = val.replace(/{siteId}/g, this.props.context.pageContext.site.id.toString());
+    val = val.replace(/{userId}/g, this.props.context.pageContext.legacyPageContext.userId);
     return val;
   }
 
@@ -368,6 +370,7 @@ export default class RestTester extends React.Component<IRestTesterProps, IRestT
           loading: false,
           requestInfo: {
             url: this.state.apiUrl,
+            absUrl: apiUrl,
             method: reqOptions.method,
             headers: reqOptions.headers,
             body: this.state.reqBody
@@ -514,7 +517,7 @@ export default class RestTester extends React.Component<IRestTesterProps, IRestT
 
         <p className={ styles.queryTitle }>Modify your API call</p>
 
-        <p className={ styles.description }>{`The following tokens can be used in the URL and body fields: {siteId} | {webId} | {webUrl} | {listId} | {itemId}`}</p>
+        <p className={ styles.description }>{`The following tokens can be used in the URL and body fields: {siteId} | {webId} | {webUrl} | {listId} | {itemId} | {userId}`}</p>
 
         <div className={styles.row}>
           <div className={styles.col1}>
@@ -536,7 +539,7 @@ export default class RestTester extends React.Component<IRestTesterProps, IRestT
                        onChanged={this._apiUrlChanged}
                        onKeyUp={(e: React.KeyboardEvent<any>) => e.key === "Enter" && this._runQuery()}
                        onFocus={this._showSuggestions}
-                       onBlur={() => setTimeout(() => this._hideSuggestions(), 100)} />
+                       onBlur={() => setTimeout(() => this._hideSuggestions(), 500)} />
 
             {
               this.state.showSuggestions && (
