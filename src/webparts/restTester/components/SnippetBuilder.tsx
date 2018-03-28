@@ -50,6 +50,7 @@ export default class SnippetBuilder extends React.Component<ISnippetBuilderProps
    */
   private _updateTokens = (val: string) => {
     val = val.replace(/{webUrl}/g, "${this.context.pageContext.web.absoluteUrl}");
+    val = val.replace(/{webId}/g, "${this.context.pageContext.web.id}");
     val = val.replace(/{listId}/g, "${this.context.pageContext.list.id}");
     val = val.replace(/{itemId}/g, "${this.context.pageContext.listItem.id}");
     val = val.replace(/{siteId}/g, "${this.context.pageContext.site.id}");
@@ -83,7 +84,7 @@ export default class SnippetBuilder extends React.Component<ISnippetBuilderProps
     }
 
     // Update the body if it is a post request
-    if (props.requestInfo.method === "POST") {
+    if (props.requestInfo.method === "POST" && props.requestInfo.body) {
       snippet = snippet.replace("{body}", `,
   body: JSON.stringify({body})`);
       let body = props.requestInfo.body;

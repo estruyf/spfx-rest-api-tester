@@ -4,18 +4,24 @@ import { escape } from '@microsoft/sp-lodash-subset';
 
 const knownAPIs: IKnownAPIs = require('./known-apis.json');
 
-interface IKnownAPIs {
-  api: string[];
+export interface IKnownAPIs {
+  api: IApi[];
+}
+
+export interface IApi {
+  method: string;
+  url: string;
 }
 
 export interface IApiSuggestionsProps {
   inputVal: string;
+  method: string;
 
   fChangeApiUrl: (apiUrl: string) => void;
 }
 
 export interface IApiSuggestionsState {
-  apiUrls: string[];
+  apiUrls: IApi[];
   apiBegin: string;
   apiEnd: string;
 }
@@ -58,14 +64,25 @@ export default class ApiSuggestions extends React.Component<IApiSuggestionsProps
 
     // Filter the known APIs
     const apiUrls = knownAPIs.api.filter(u =>
-      u.toLowerCase().indexOf(apiEnd.toLowerCase()) !== -1 && u.toLowerCase() !== apiEnd.toLowerCase()
-    );
+      u.method === this.props.method && u.url.toLowerCase().indexOf(apiEnd.toLowerCase()) !== -1 && u.url.toLowerCase() !== apiEnd.toLowerCase()
+    ).sort(this._sortByUrl);
 
     this.setState({
       apiUrls,
       apiBegin,
       apiEnd
     });
+  }
+
+  /**
+   * Sort array by their URL
+   * @param a First item
+   * @param b Second item
+   */
+  private _sortByUrl(a: IApi, b: IApi): number {
+    if(a.url.toLowerCase() < b.url.toLowerCase()) return -1;
+    if(a.url.toLowerCase() > b.url.toLowerCase()) return 1;
+    return 0;
   }
 
   private _useApiUrl = (url: string) => {
@@ -78,8 +95,8 @@ export default class ApiSuggestions extends React.Component<IApiSuggestionsProps
         <ul className={styles.suggestions}>
           {
             this.state.apiUrls.map(u => (
-              <li key={escape(u)}>
-                <a href="javascript:;" onClick={() => this._useApiUrl(`${this.state.apiBegin}${u}`)}>{`${this.state.apiBegin}${u}`}</a>
+              <li key={escape(u.url)}>
+                <a href="javascript:;" onClick={() => this._useApiUrl(`${this.state.apiBegin}${u.url}`)}>{`${this.state.apiBegin}${u.url}`}</a>
               </li>
             ))
           }

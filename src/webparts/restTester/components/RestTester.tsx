@@ -292,6 +292,7 @@ export default class RestTester extends React.Component<IRestTesterProps, IRestT
    */
   private _updateTokens = (val: string) => {
     val = val.replace(/{webUrl}/g, this.props.context.pageContext.web.absoluteUrl);
+    val = val.replace(/{webId}/g, this.props.context.pageContext.web.id.toString());
     val = val.replace(/{listId}/g, this.props.context.pageContext.list.id.toString());
     val = val.replace(/{itemId}/g, this.props.context.pageContext.listItem.id.toString());
     val = val.replace(/{siteId}/g, this.props.context.pageContext.site.id.toString());
@@ -318,10 +319,13 @@ export default class RestTester extends React.Component<IRestTesterProps, IRestT
     // Store the performed query
     this._storeLastQuery();
 
+    // Add the current request method
     let reqOptions: ISPHttpClientOptions = {
       method: Methods[requestType]
     };
-    if (requestType !== Methods.GET && requestType !== Methods.HEAD) {
+
+    // Check if a body needs to be added to the request
+    if (requestType !== Methods.GET && requestType !== Methods.HEAD && reqBody) {
       reqBody = this._updateTokens(reqBody);
       reqOptions["body"] = reqBody;
     }
@@ -510,7 +514,7 @@ export default class RestTester extends React.Component<IRestTesterProps, IRestT
 
         <p className={ styles.queryTitle }>Modify your API call</p>
 
-        <p className={ styles.description }>{`The following tokens can be used in the URL and body fields: {siteId} | {webUrl} | {listId} | {itemId}`}</p>
+        <p className={ styles.description }>{`The following tokens can be used in the URL and body fields: {siteId} | {webId} | {webUrl} | {listId} | {itemId}`}</p>
 
         <div className={styles.row}>
           <div className={styles.col1}>
@@ -537,6 +541,7 @@ export default class RestTester extends React.Component<IRestTesterProps, IRestT
             {
               this.state.showSuggestions && (
                 <ApiSuggestions inputVal={this.state.apiUrl}
+                                method={Methods[this.state.requestType]}
                                 fChangeApiUrl={this._updateApiUrl} />
               )
             }
