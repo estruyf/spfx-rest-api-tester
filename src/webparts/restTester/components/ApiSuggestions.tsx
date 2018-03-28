@@ -95,8 +95,8 @@ export default class ApiSuggestions extends React.Component<IApiSuggestionsProps
         <ul className={styles.suggestions}>
           {
             this.state.apiUrls.map(u => (
-              <li key={escape(u.url)}>
-                <a href="javascript:;" onClick={() => this._useApiUrl(`${this.state.apiBegin}${u.url}`)}>{`${this.state.apiBegin}${u.url}`}</a>
+              <li key={escape(u.url)} onClick={() => this._useApiUrl(`${this.state.apiBegin}${u.url}`)}>
+                <a href="javascript:;">{`${this.state.apiBegin}${u.url}`}</a>
               </li>
             ))
           }

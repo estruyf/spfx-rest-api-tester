@@ -8,6 +8,7 @@
     { "method": "GET", "url": "_api/web/Lists/GetByTitle('<your-title>')/Items" },
     { "method": "GET", "url": "_api/web/lists(guid'{listId}')/subscriptions" },
     { "method": "GET", "url": "_api/web/lists(guid'{listId}')/getchanges" },
+    { "method": "GET", "url": "_api/web/getuserbyid('{userId}')" }, 
     { "method": "POST", "url": "_api/site/openWebById('{webId}')" }
   ]
 }

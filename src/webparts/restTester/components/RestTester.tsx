@@ -296,6 +296,8 @@ export default class RestTester extends React.Component<IRestTesterProps, IRestT
     val = val.replace(/{listId}/g, this.props.context.pageContext.list.id.toString());
     val = val.replace(/{itemId}/g, this.props.context.pageContext.listItem.id.toString());
     val = val.replace(/{siteId}/g, this.props.context.pageContext.site.id.toString());
+    val = val.replace(/{userId}/g, this.props.currUserId);
+
     return val;
   }
 
@@ -356,31 +358,31 @@ export default class RestTester extends React.Component<IRestTesterProps, IRestT
 
     try {
       this.props.context.spHttpClient.fetch(apiUrl, SPHttpClient.configurations.v1, reqOptions)
-      .then((data: SPHttpClientResponse) => {
-        this.setState({
-          status: data.status
+        .then((data: SPHttpClientResponse) => {
+          this.setState({
+            status: data.status
+          });
+          return data.json();
+        })
+        .then((data: any) => {
+          this.setState({
+            data: data,
+            loading: false,
+            requestInfo: {
+              url: this.state.apiUrl,
+              method: reqOptions.method,
+              headers: reqOptions.headers,
+              body: this.state.reqBody
+            }
+          });
+        }).catch(err => {
+          this.setState({
+            data: err,
+            loading: false,
+            status: "Error",
+            requestInfo: null
+          });
         });
-        return data.json();
-      })
-      .then((data: any) => {
-        this.setState({
-          data: data,
-          loading: false,
-          requestInfo: {
-            url: this.state.apiUrl,
-            method: reqOptions.method,
-            headers: reqOptions.headers,
-            body: this.state.reqBody
-          }
-        });
-      }).catch(err => {
-        this.setState({
-          data: err,
-          loading: false,
-          status: "Error",
-          requestInfo: null
-        });
-      });
     } catch (err) {
       this.setState({
         data: err && err.message && err.stack ? { msg: err.message, stack: err.stack } : "Something went wrong, you might find a clue in the browser console.",
@@ -439,7 +441,7 @@ export default class RestTester extends React.Component<IRestTesterProps, IRestT
       allHeaders[i].value = value;
 
       // Check if the last item is still empty, otherwise we need to add a new header
-      const lastItem = allHeaders[allHeaders.length-1];
+      const lastItem = allHeaders[allHeaders.length - 1];
       if (lastItem.key) {
         // Add an new empty item
         allHeaders.push({ key: "", value: "" });
@@ -485,23 +487,23 @@ export default class RestTester extends React.Component<IRestTesterProps, IRestT
    */
   public render(): React.ReactElement<IRestTesterProps> {
     return (
-      <div className={ styles.restTester }>
-        <span className={ styles.title }>API tester <a className={styles.credits} href="javascript:;" onClick={() => this.props.context.propertyPane.open()} title="Elio Struyf">Created by Elio Struyf</a></span>
+      <div className={styles.restTester}>
+        <span className={styles.title}>API tester <a className={styles.credits} href="javascript:;" onClick={() => this.props.context.propertyPane.open()} title="Elio Struyf">Created by Elio Struyf</a></span>
 
         {
           this.state.storage && (
             <div className={styles.row}>
               <div className={styles.col12}>
-                <p className={ styles.storedTitle }>Use one of your stored API calls</p>
+                <p className={styles.storedTitle}>Use one of your stored API calls</p>
               </div>
               <div className={styles.col10}>
                 <Dropdown selectedKey={this.state.selectedStoredQuery}
-                          onChanged={this._useSelectedQuery}
-                          placeHolder="Select one of your stored queries"
-                          options={[
-                            { key: 'EMPTY', text: '' },
-                            ...this.state.storedQueries
-                          ]} />
+                  onChanged={this._useSelectedQuery}
+                  placeHolder="Select one of your stored queries"
+                  options={[
+                    { key: 'EMPTY', text: '' },
+                    ...this.state.storedQueries
+                  ]} />
               </div>
               <div className={`${styles.col2} ${styles.deleteQuery}`}>
                 <DefaultButton onClick={this._deleteCrntQuery} disabled={!this.state.storage}>
@@ -512,37 +514,37 @@ export default class RestTester extends React.Component<IRestTesterProps, IRestT
           )
         }
 
-        <p className={ styles.queryTitle }>Modify your API call</p>
+        <p className={styles.queryTitle}>Modify your API call</p>
 
-        <p className={ styles.description }>{`The following tokens can be used in the URL and body fields: {siteId} | {webId} | {webUrl} | {listId} | {itemId}`}</p>
+        <p className={styles.description}>{`The following tokens can be used in the URL and body fields: {siteId} | {webId} | {webUrl} | {listId} | {itemId} | {userId}`}</p>
 
         <div className={styles.row}>
           <div className={styles.col1}>
             <Dropdown selectedKey={this.state.requestType}
-                      onChanged={this._requestChanged}
-                      className={styles.methodSelector}
-                      options={[
-                        { key: Methods.GET, text: 'GET' },
-                        { key: Methods.POST, text: 'POST' },
-                        { key: Methods.PUT, text: 'PUT' },
-                        { key: Methods.PATCH, text: 'PATCH' },
-                        { key: Methods.DELETE, text: 'DELETE' },
-                        { key: Methods.HEAD, text: 'HEAD' }
-                      ]} />
+              onChanged={this._requestChanged}
+              className={styles.methodSelector}
+              options={[
+                { key: Methods.GET, text: 'GET' },
+                { key: Methods.POST, text: 'POST' },
+                { key: Methods.PUT, text: 'PUT' },
+                { key: Methods.PATCH, text: 'PATCH' },
+                { key: Methods.DELETE, text: 'DELETE' },
+                { key: Methods.HEAD, text: 'HEAD' }
+              ]} />
           </div>
           <div className={`${styles.col11} ${styles.queryInput}`}>
             <TextField placeholder="Specify your SharePoint API URL"
-                       value={this.state.apiUrl}
-                       onChanged={this._apiUrlChanged}
-                       onKeyUp={(e: React.KeyboardEvent<any>) => e.key === "Enter" && this._runQuery()}
-                       onFocus={this._showSuggestions}
-                       onBlur={() => setTimeout(() => this._hideSuggestions(), 100)} />
+              value={this.state.apiUrl}
+              onChanged={this._apiUrlChanged}
+              onKeyUp={(e: React.KeyboardEvent<any>) => e.key === "Enter" && this._runQuery()}
+              onFocus={this._showSuggestions}
+              onBlur={() => setTimeout(() => this._hideSuggestions(), 100)} />
 
             {
               this.state.showSuggestions && (
                 <ApiSuggestions inputVal={this.state.apiUrl}
-                                method={Methods[this.state.requestType]}
-                                fChangeApiUrl={this._updateApiUrl} />
+                  method={Methods[this.state.requestType]}
+                  fChangeApiUrl={this._updateApiUrl} />
               )
             }
           </div>
@@ -554,7 +556,7 @@ export default class RestTester extends React.Component<IRestTesterProps, IRestT
           </ActionButton>
 
           <ActionButton onClick={() => this._switchRequestTab(RequestTab.headers)} className={`${this.state.requestTab === RequestTab.headers && styles.selectedTab}`}>
-            Request headers { this.state.customHeaders.length > 1 && `(${this.state.customHeaders.length - 1})` }
+            Request headers {this.state.customHeaders.length > 1 && `(${this.state.customHeaders.length - 1})`}
           </ActionButton>
         </div>
 
@@ -562,38 +564,38 @@ export default class RestTester extends React.Component<IRestTesterProps, IRestT
           this.state.requestTab === RequestTab.body ? (
             this.state.requestType !== Methods.GET && this.state.requestType !== Methods.HEAD ? (
               <AceEditor mode="json"
-                        theme="github"
-                        className={styles.codeZone}
-                        value={this.state.reqBody}
-                        onChange={this._reqBodyChanged}
-                        editorProps={{ $blockScrolling: true }}
-                        setOptions={{
-                          showPrintMargin: false
-                        }}
-                        height="150px"
-                        width="100%" />
+                theme="github"
+                className={styles.codeZone}
+                value={this.state.reqBody}
+                onChange={this._reqBodyChanged}
+                editorProps={{ $blockScrolling: true }}
+                setOptions={{
+                  showPrintMargin: false
+                }}
+                height="150px"
+                width="100%" />
             ) : (
-              <MessageBar className={styles.messageBar} messageBarType={MessageBarType.info}>
-                Body not supported with GET/HEAD requests
+                <MessageBar className={styles.messageBar} messageBarType={MessageBarType.info}>
+                  Body not supported with GET/HEAD requests
               </MessageBar>
-            )
+              )
           ) : (
-            <div>
-              {
-                this.state.customHeaders.map((ch: IHeader, index: number) => (
-                  <HeadersInput hIndex={index} hKey={ch.key} hValue={ch.value} fUpdate={this._updateHeader} />
-                ))
-              }
-            </div>
-          )
+              <div>
+                {
+                  this.state.customHeaders.map((ch: IHeader, index: number) => (
+                    <HeadersInput hIndex={index} hKey={ch.key} hValue={ch.value} fUpdate={this._updateHeader} />
+                  ))
+                }
+              </div>
+            )
         }
 
         <DefaultButton onClick={this._saveCurrentQuery} disabled={!this.state.storage}>
           <Icon className={styles.icon} iconName="Save" /> Store query
         </DefaultButton>
 
-        <DefaultButton primary={ true }
-                       onClick={this._runQuery}>
+        <DefaultButton primary={true}
+          onClick={this._runQuery}>
           <Icon className={styles.icon} iconName="LightningBolt" /> Run query
         </DefaultButton>
 
@@ -607,12 +609,12 @@ export default class RestTester extends React.Component<IRestTesterProps, IRestT
            */
         }
         <ResponseInfo status={this.state.status}
-                      requestInfo={this.state.requestInfo}
-                      resultType={this.state.resultType}
-                      wrapCode={this.state.wrapCode}
-                      data={this.state.data}
-                      fSwitchTab={this._switchResultTab}
-                      fTriggerCodeWrap={this._triggerCodeWrapping} />
+          requestInfo={this.state.requestInfo}
+          resultType={this.state.resultType}
+          wrapCode={this.state.wrapCode}
+          data={this.state.data}
+          fSwitchTab={this._switchResultTab}
+          fTriggerCodeWrap={this._triggerCodeWrapping} />
       </div>
     );
   }

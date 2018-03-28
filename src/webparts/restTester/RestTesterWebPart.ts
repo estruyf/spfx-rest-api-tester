@@ -7,6 +7,7 @@ import {
   PropertyPaneLabel,
   PropertyPaneLink
 } from '@microsoft/sp-webpart-base';
+import { sp } from "@pnp/sp";
 
 // import * as strings from 'RestTesterWebPartStrings';
 import RestTester from './components/RestTester';
@@ -18,14 +19,18 @@ export interface IRestTesterWebPartProps {
 
 export default class RestTesterWebPart extends BaseClientSideWebPart<IRestTesterWebPartProps> {
   public render(): void {
-    const element: React.ReactElement<IRestTesterProps> = React.createElement(
-      RestTester,
-      {
-        context: this.context
-      }
-    );
-
-    ReactDom.render(element, this.domElement);
+    // Get current user Id
+    sp.site.rootWeb.ensureUser(this.context.pageContext.user.email).then(result => {
+      const element: React.ReactElement<IRestTesterProps> = React.createElement(
+        RestTester,
+        {
+          context: this.context,
+          currUserId: result.data.Id.toString()
+        }
+      );
+  
+      ReactDom.render(element, this.domElement);
+    });
   }
 
   protected get dataVersion(): Version {
