@@ -19,8 +19,12 @@ export interface IRestTesterWebPartProps {
 
 export default class RestTesterWebPart extends BaseClientSideWebPart<IRestTesterWebPartProps> {
   public async render(): Promise<void> {
+    // setup sp
+    sp.setup({
+      spfxContext: this.context
+    });
     // Get current user Id
-    const ensureUserResult: WebEnsureUserResult = await sp.site.rootWeb.ensureUser(this.context.pageContext.user.email);
+    const ensureUserResult: WebEnsureUserResult = await sp.web.ensureUser(this.context.pageContext.user.email);
 
     const element: React.ReactElement<IRestTesterProps> = React.createElement(
       RestTester,
