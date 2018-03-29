@@ -1,13 +1,14 @@
 {
   "name": "rest-tester",
-  "version": "0.0.4",
+  "version": "1.0.0",
   "private": true,
   "engines": {
     "node": ">=0.10.0"
   },
   "scripts": {
     "build": "gulp clean && gulp bundle && gulp package-solution",
-    "build:prod": "gulp clean && gulp bundle --ship && gulp package-solution --ship"
+    "build:prod": "gulp clean && gulp bundle --ship && gulp package-solution --ship && npm run changelog",
+    "changelog": "node update-changelog.js"
   },
   "dependencies": {
     "@microsoft/sp-core-library": "~1.4.1",
