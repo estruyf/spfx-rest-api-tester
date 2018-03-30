@@ -1,0 +1,13 @@
+{
+  "$schema": "https://dev.office.com/json-schemas/spfx-build/package-solution.schema.json",
+  "solution": {
+    "name": "estruyf-rest-api-tester",
+    "id": "96c4456c-cae4-47e4-ad18-6597045a2392",
+    "version": "1.0.0.0",
+    "includeClientSideAssets": true,
+    "skipFeatureDeployment": true
+  },
+  "paths": {
+    "zippedPackage": "solution/estruyf-rest-api-tester.sppkg"
+  }
+}

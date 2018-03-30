@@ -1,0 +1,66 @@
+{
+  "versions": [
+    {
+      "version": "1.0.0",
+      "date": "2018-03-29",
+      "changes": {
+        "added": [
+          "First major release with automated release"
+        ],
+        "changed": [],
+        "removed": [],
+        "fixed": []
+      }
+    },
+    {
+      "version": "0.0.4",
+      "date": "2018-03-28",
+      "changes": {
+        "added": [
+          "API URL Suggestions",
+          "New request methods added: PUT, PATCH, DELETE, HEAD",
+          "New tokens: siteId, webId and userId",
+          "Response message bar with status code and called URL"
+        ],
+        "changed": [],
+        "removed": [],
+        "fixed": []
+      }
+    },
+    {
+      "version": "0.0.3",
+      "changes": {
+        "added": [
+          "Request header support",
+          "Code snippet for SPFx solution with the performed API call",
+          "Search enabled in code editor",
+          "Code/line wrapping"
+        ],
+        "changed": [],
+        "removed": [],
+        "fixed": []
+      }
+    },
+    {
+      "version": "0.0.2",
+      "changes": {
+        "added": [
+          "Response status code is shown with each request",
+          "Automatic conversion from JSON to TS interface"
+        ],
+        "changed": [],
+        "removed": [],
+        "fixed": []
+      }
+    },
+    {
+      "version": "0.0.1",
+      "changes": {
+        "added": ["Initial BETA version"],
+        "changed": [],
+        "removed": [],
+        "fixed": []
+      }
+    }
+  ]
+}

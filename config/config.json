@@ -1,0 +1,18 @@
+{
+  "$schema": "https://dev.office.com/json-schemas/spfx-build/config.2.0.schema.json",
+  "version": "2.0",
+  "bundles": {
+    "rest-tester-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/restTester/RestTesterWebPart.js",
+          "manifest": "./src/webparts/restTester/RestTesterWebPart.manifest.json"
+        }
+      ]
+    }
+  },
+  "externals": {},
+  "localizedResources": {
+    "RestTesterWebPartStrings": "lib/webparts/restTester/loc/{locale}.js"
+  }
+}

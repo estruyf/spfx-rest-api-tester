@@ -1,0 +1,187 @@
+@import '~@microsoft/sp-office-ui-fabric-core/dist/sass/SPFabricCore.scss';
+
+.restTester {
+  > p:first-child {
+    margin-top: 0;
+    padding-top: 0;
+  }
+
+  .row {
+    @include ms-Grid-row;
+    margin-bottom: 15px;
+
+    .col1 {
+      @include ms-Grid-col;
+      @include ms-sm1;
+    }
+
+    .col2 {
+      @include ms-Grid-col;
+      @include ms-sm2;
+    }
+
+    .col5 {
+      @include ms-Grid-col;
+      @include ms-sm5;
+    }
+
+    .col6 {
+      @include ms-Grid-col;
+      @include ms-sm6;
+    }
+
+    .col10 {
+      @include ms-Grid-col;
+      @include ms-sm10;
+    }
+
+    .col11 {
+      @include ms-Grid-col;
+      @include ms-sm11;
+    }
+
+    .col12 {
+      @include ms-Grid-col;
+      @include ms-sm12;
+    }
+  }
+
+  button {
+    margin-right: 15px;
+  }
+
+  .messageBar {
+    margin-bottom: 15px;
+  }
+
+  .respMessageBar {
+    margin-bottom: 5px;
+  }
+
+  .title {
+    @include ms-font-xl;
+    color: $ms-color-themePrimary;
+    display: block;
+    position: relative;
+
+    .credits {
+      @include ms-font-m;
+      bottom: 0;
+      position: absolute;
+      right: 0;
+    }
+
+    a {
+      color: $ms-color-themePrimary;
+      font-style: italic;
+      text-decoration: none;
+
+      &:hover, &:visited {
+        color: $ms-color-themePrimary;
+        text-decoration: underline;
+      }
+    }
+  }
+
+  .storedTitle, .queryTitle {
+    @include ms-font-l;
+  }
+
+  .deleteQuery {
+    button {
+      width: 100%;
+    }
+  }
+
+  .description {
+    @include ms-fontSize-m;
+  }
+
+  .methodSelector {
+    :global {
+      .ms-Dropdown {
+        &:focus {
+          color: $ms-color-white;
+        }
+      }
+
+      .ms-Dropdown-title {
+        background-color: $ms-color-themePrimary;
+        color: $ms-color-white;
+      }
+
+      .ms-Dropdown-caretDownWrapper i {
+        color: $ms-color-white;
+      }
+    }
+  }
+
+  .spinner {
+    display: inline-block;
+    margin-left: 15px;
+    margin-top: 6px;
+  }
+
+  .icon {
+    margin-right: 5px;
+  }
+
+  .resultSection {
+    .title {
+      margin-bottom: 5px;
+    }
+  }
+
+  .tabs {
+    margin-bottom: 15px;
+    position: relative;
+  }
+
+  .selectedTab {
+    border-bottom: 1px solid;
+    border-bottom-color: $ms-color-themePrimary;
+  }
+
+  button.codeWrap {
+    margin-right: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+  }
+
+  .codeZone {
+    border: 1px solid;
+    border-color: $ms-color-neutralLight;
+    margin-bottom: 15px;
+    overflow-x: auto;
+  }
+}
+
+.queryInput {
+  position: relative;
+}
+
+.suggestions {
+  background-color: $ms-color-white;
+  border: 1px solid;
+  border-color: $ms-color-neutralTertiaryAlt;
+  max-height: 200px;
+  left: 8px;
+  list-style: none;
+  overflow-y: auto;
+  padding: 0;
+  position: absolute;
+  right: 8px;
+  z-index: 99;
+
+  a {
+    color: $ms-color-neutralPrimary;
+    display: block;
+    padding: 10px 15px;
+    text-decoration: none;
+
+    &:hover {
+      background-color: $ms-color-neutralLighterAlt;
+    }
+  }
+}

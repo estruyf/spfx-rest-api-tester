@@ -1,0 +1,14 @@
+{
+  "api": [
+    { "method": "GET", "url": "_api/web" },
+    { "method": "GET", "url": "_api/web/Lists" },
+    { "method": "GET", "url": "_api/web/Lists(guid'{listId}')" },
+    { "method": "GET", "url": "_api/web/Lists/GetByTitle('<your-title>')" },
+    { "method": "GET", "url": "_api/web/Lists(guid'{listId}')/Items" },
+    { "method": "GET", "url": "_api/web/Lists/GetByTitle('<your-title>')/Items" },
+    { "method": "GET", "url": "_api/web/lists(guid'{listId}')/subscriptions" },
+    { "method": "GET", "url": "_api/web/lists(guid'{listId}')/getchanges" },
+    { "method": "GET", "url": "_api/web/getuserbyid('{userId}')" },
+    { "method": "POST", "url": "_api/site/openWebById('{webId}')" }
+  ]
+}

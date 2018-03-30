@@ -1,0 +1,19 @@
+{
+  "$schema": "https://dev.office.com/json-schemas/spfx/client-side-web-part-manifest.schema.json",
+  "id": "97741cd2-a5d0-4f21-81d2-865523a3f0d4",
+  "alias": "estruyf-apitester",
+  "componentType": "WebPart",
+  "version": "*",
+  "manifestVersion": 2,
+  "requiresCustomScript": false,
+  "preconfiguredEntries": [{
+    "groupId": "5c03119e-3074-46fd-976b-c60198311f71",
+    "group": { "default": "Other" },
+    "title": { "default": "REST API Tester" },
+    "description": { "default": "RestTester description" },
+    "officeFabricIconFontName": "TestBeaker",
+    "properties": {
+      "description": "REST API Tester"
+    }
+  }]
+}
