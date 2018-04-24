@@ -9,6 +9,7 @@ import 'brace/ext/searchbox';
 import { IRequestInfo } from './RestTester';
 import { isEmpty } from '@microsoft/sp-lodash-subset';
 import * as beautify from 'js-beautify';
+import CodeEditor, { CodeLanguage } from './CodeEditor';
 
 export interface ISnippetBuilderProps {
   requestInfo: IRequestInfo;
@@ -103,18 +104,20 @@ export default class SnippetBuilder extends React.Component<ISnippetBuilderProps
 
   public render(): React.ReactElement<ISnippetBuilderProps> {
     return (
-      <AceEditor mode="typescript"
-                 theme="github"
-                 className={styles.codeZone}
-                 value={this.state.code}
-                 readOnly={true}
-                 editorProps={{ $blockScrolling: true }}
-                 setOptions={{
-                   wrap: this.props.wrapCode,
-                   showPrintMargin: false,
-                   maxLines: this.state.code.split(/\r\n|\r|\n/).length
-                 }}
-                 width="100%" />
+      // <AceEditor mode="typescript"
+      //            theme="github"
+      //            className={styles.codeZone}
+      //            value={this.state.code}
+      //            readOnly={true}
+      //            editorProps={{ $blockScrolling: true }}
+      //            setOptions={{
+      //              wrap: this.props.wrapCode,
+      //              showPrintMargin: false,
+      //              maxLines: this.state.code.split(/\r\n|\r|\n/).length
+      //            }}
+      //            width="100%" />
+
+      <CodeEditor value={this.state.code} language={CodeLanguage.typescript} />
     );
   }
 }

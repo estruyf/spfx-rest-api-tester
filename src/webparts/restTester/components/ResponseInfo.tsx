@@ -7,6 +7,7 @@ import SnippetBuilder from './SnippetBuilder';
 import { ResultType, IRequestInfo } from './RestTester';
 import jsonToTS from 'json-to-ts';
 import { MessageBar, MessageBarType } from 'office-ui-fabric-react/lib/components/MessageBar';
+import CodeEditor, { CodeLanguage } from './CodeEditor';
 
 export interface IResponseInfoProps {
   status: number | string;
@@ -61,34 +62,36 @@ export default class ResponseInfo extends React.Component<IResponseInfoProps, IR
 
         {
           this.props.resultType === ResultType.body && (
-            <AceEditor mode="json"
-                      theme="github"
-                      className={styles.codeZone}
-                      value={restResponse}
-                      readOnly={true}
-                      editorProps={{ $blockScrolling: true }}
-                      setOptions={{
-                        wrap: this.props.wrapCode,
-                        showPrintMargin: false,
-                        maxLines: restResponse ? restResponse.split(/\r\n|\r|\n/).length : 15
-                      }}
-                      width="100%" />
+            // <AceEditor mode="json"
+            //           theme="github"
+            //           className={styles.codeZone}
+            //           value={restResponse}
+            //           readOnly={true}
+            //           editorProps={{ $blockScrolling: true }}
+            //           setOptions={{
+            //             wrap: this.props.wrapCode,
+            //             showPrintMargin: false,
+            //             maxLines: restResponse ? restResponse.split(/\r\n|\r|\n/).length : 15
+            //           }}
+            //           width="100%" />
+            <CodeEditor value={restResponse} language={CodeLanguage.json} />
           )
         }
         {
           this.props.resultType === ResultType.interface && (
-            <AceEditor mode="typescript"
-                      theme="github"
-                      className={styles.codeZone}
-                      value={interfaceObj}
-                      readOnly={true}
-                      editorProps={{ $blockScrolling: true }}
-                      setOptions={{
-                        wrap: this.props.wrapCode,
-                        showPrintMargin: false,
-                        maxLines: interfaceObj ? interfaceObj.split(/\r\n|\r|\n/).length : 15
-                      }}
-                      width="100%" />
+            // <AceEditor mode="typescript"
+            //           theme="github"
+            //           className={styles.codeZone}
+            //           value={interfaceObj}
+            //           readOnly={true}
+            //           editorProps={{ $blockScrolling: true }}
+            //           setOptions={{
+            //             wrap: this.props.wrapCode,
+            //             showPrintMargin: false,
+            //             maxLines: interfaceObj ? interfaceObj.split(/\r\n|\r|\n/).length : 15
+            //           }}
+            //           width="100%" />
+            <CodeEditor value={interfaceObj} language={CodeLanguage.typescript} />
           )
         }
         {
