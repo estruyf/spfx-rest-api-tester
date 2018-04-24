@@ -1,32 +1,12 @@
 import * as React from 'react';
-import styles from './RestTester.module.scss';
+import styles from '../RestTester.module.scss';
 import { escape } from '@microsoft/sp-lodash-subset';
+import { IApiSuggestionsProps, IApiSuggestionsState } from '.';
+import { IKnownAPIs, IApi } from '../IKnownApis';
 
-const knownAPIs: IKnownAPIs = require('./known-apis.json');
+const knownAPIs: IKnownAPIs = require('../known-apis.json');
 
-export interface IKnownAPIs {
-  api: IApi[];
-}
-
-export interface IApi {
-  method: string;
-  url: string;
-}
-
-export interface IApiSuggestionsProps {
-  inputVal: string;
-  method: string;
-
-  fChangeApiUrl: (apiUrl: string) => void;
-}
-
-export interface IApiSuggestionsState {
-  apiUrls: IApi[];
-  apiBegin: string;
-  apiEnd: string;
-}
-
-export default class ApiSuggestions extends React.Component<IApiSuggestionsProps, IApiSuggestionsState> {
+export class ApiSuggestions extends React.Component<IApiSuggestionsProps, IApiSuggestionsState> {
   constructor(props: IApiSuggestionsProps) {
     super(props);
 

@@ -11,16 +11,10 @@ import { Label } from 'office-ui-fabric-react/lib/Label';
 import { Icon } from 'office-ui-fabric-react/lib/Icon';
 import { Checkbox } from 'office-ui-fabric-react/lib/Checkbox';
 import { MessageBar, MessageBarType } from 'office-ui-fabric-react/lib/MessageBar';
-import * as brace from 'brace';
-import AceEditor from 'react-ace';
-import 'brace/mode/json';
-import 'brace/mode/typescript';
-import 'brace/theme/github';
-import 'brace/ext/searchbox';
-import HeadersInput from './HeadersInput';
-import SnippetBuilder from './SnippetBuilder';
-import ResponseInfo from './ResponseInfo';
-import ApiSuggestions from './ApiSuggestions';
+import { HeadersInput } from './headersInput';
+import { ResponseInfo } from './responseInfo';
+import { ApiSuggestions } from './apiSuggestions';
+import { CodeEditor } from './codeEditor';
 
 /**
  * TODO: Allow other API support (not MS Graph)
@@ -564,17 +558,14 @@ export default class RestTester extends React.Component<IRestTesterProps, IRestT
         {
           this.state.requestTab === RequestTab.body ? (
             this.state.requestType !== Methods.GET && this.state.requestType !== Methods.HEAD ? (
-              <AceEditor mode="json"
-                        theme="github"
-                        className={styles.codeZone}
-                        value={this.state.reqBody}
-                        onChange={this._reqBodyChanged}
-                        editorProps={{ $blockScrolling: true }}
-                        setOptions={{
-                          showPrintMargin: false
-                        }}
-                        height="150px"
-                        width="100%" />
+              <div className={styles.codeZone}>
+                <CodeEditor language="json"
+                            code={this.state.reqBody}
+                            readOnly={false}
+                            onChange={this._reqBodyChanged}
+                            wordWrap={false}
+                            height="150px" />
+              </div>
             ) : (
               <MessageBar className={styles.messageBar} messageBarType={MessageBarType.info}>
                 Body not supported with GET/HEAD requests

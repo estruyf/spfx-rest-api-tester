@@ -1,5 +1,15 @@
 # Changelog - REST API Tester
 
+## [1.1.0] - 2018-04-24
+
+### Added
+
+- Added Monaco Editor
+
+### Changed
+
+- Component structural changes
+
 ## [1.0.0] - 2018-03-29
 
 ### Added

@@ -1,23 +1,10 @@
 import * as React from 'react';
-import styles from './RestTester.module.scss';
+import styles from '../RestTester.module.scss';
 // import styles from './SnippetBuilder.module.scss';
-import * as brace from 'brace';
-import AceEditor from 'react-ace';
-import 'brace/mode/typescript';
-import 'brace/theme/github';
-import 'brace/ext/searchbox';
-import { IRequestInfo } from './RestTester';
 import { isEmpty } from '@microsoft/sp-lodash-subset';
 import * as beautify from 'js-beautify';
-
-export interface ISnippetBuilderProps {
-  requestInfo: IRequestInfo;
-  wrapCode: boolean;
-}
-
-export interface ISnippetBuilderState {
-  code: string;
-}
+import { ISnippetBuilderProps, ISnippetBuilderState } from '.';
+import { CodeEditor } from '../codeEditor';
 
 const codeSnippet = `const apiUrl = \`{apiUrl}\`;
 this.context.spHttpClient.fetch(apiUrl, SPHttpClient.configurations.v1, {
@@ -28,7 +15,7 @@ this.context.spHttpClient.fetch(apiUrl, SPHttpClient.configurations.v1, {
   // Write your code here
 });`;
 
-export default class SnippetBuilder extends React.Component<ISnippetBuilderProps, ISnippetBuilderState> {
+export class SnippetBuilder extends React.Component<ISnippetBuilderProps, ISnippetBuilderState> {
   constructor(props: ISnippetBuilderProps) {
     super(props);
 
@@ -58,6 +45,9 @@ export default class SnippetBuilder extends React.Component<ISnippetBuilderProps
     return val;
   }
 
+  /**
+   * Update the code snippet for the query
+   */
   private _updateCodeSnippet = (props: ISnippetBuilderProps) => {
     if (!props.requestInfo) {
       this.setState({
@@ -103,18 +93,10 @@ export default class SnippetBuilder extends React.Component<ISnippetBuilderProps
 
   public render(): React.ReactElement<ISnippetBuilderProps> {
     return (
-      <AceEditor mode="typescript"
-                 theme="github"
-                 className={styles.codeZone}
-                 value={this.state.code}
-                 readOnly={true}
-                 editorProps={{ $blockScrolling: true }}
-                 setOptions={{
-                   wrap: this.props.wrapCode,
-                   showPrintMargin: false,
-                   maxLines: this.state.code.split(/\r\n|\r|\n/).length
-                 }}
-                 width="100%" />
+      <CodeEditor language="typescript"
+                  code={this.state.code}
+                  readOnly={true}
+                  wordWrap={this.props.wrapCode} />
     );
   }
 }

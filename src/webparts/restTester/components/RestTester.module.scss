@@ -146,14 +146,11 @@
     margin-right: 0;
     position: absolute;
     right: 0;
-    top: 0;
+    top: 10px;
   }
 
   .codeZone {
-    border: 1px solid;
-    border-color: $ms-color-neutralLight;
     margin-bottom: 15px;
-    overflow-x: auto;
   }
 }
 

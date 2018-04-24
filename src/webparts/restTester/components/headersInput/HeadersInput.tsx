@@ -1,23 +1,12 @@
 import * as React from 'react';
-import styles from './RestTester.module.scss';
+import styles from '../RestTester.module.scss';
 // import styles from './HeadersInput.module.scss';
 import { TextField } from 'office-ui-fabric-react/lib/components/TextField';
 import { DefaultButton } from 'office-ui-fabric-react/lib/components/Button';
 import { Icon } from 'office-ui-fabric-react/lib/components/Icon';
+import { IHeadersInputProps, IHeadersInputState } from '.';
 
-export interface IHeadersInputProps {
-  hIndex: number;
-  hKey: string;
-  hValue: string;
-  fUpdate: (i: number, key: string, value: string) => void;
-}
-
-export interface IHeadersInputState {
-  hKey: string;
-  hValue: string;
-}
-
-export default class HeadersInput extends React.Component<IHeadersInputProps, IHeadersInputState> {
+export class HeadersInput extends React.Component<IHeadersInputProps, IHeadersInputState> {
   constructor(props: IHeadersInputProps) {
     super(props);
 

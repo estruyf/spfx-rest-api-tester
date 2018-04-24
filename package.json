@@ -21,17 +21,18 @@
     "@types/webpack-env": ">=1.12.1 <1.14.0",
     "js-beautify": "1.7.5",
     "json-to-ts": "1.5.4",
+    "monaco-editor": "^0.12.0",
     "react": "15.6.2",
-    "react-ace": "5.9.0",
     "react-dom": "15.6.2"
   },
   "devDependencies": {
     "@microsoft/sp-build-web": "~1.4.1",
     "@microsoft/sp-module-interfaces": "~1.4.1",
     "@microsoft/sp-webpart-workbench": "~1.4.1",
-    "gulp": "~3.9.1",
     "@types/chai": ">=3.4.34 <3.6.0",
     "@types/mocha": ">=2.2.33 <2.6.0",
-    "ajv": "~5.2.2"
+    "ajv": "~5.2.2",
+    "babel-loader": "^7.1.4",
+    "gulp": "~3.9.1"
   }
 }
