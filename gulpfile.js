@@ -12,8 +12,10 @@ build.configureWebpack.mergeConfig({
 
     generatedConfiguration.plugins.push(new webpack.IgnorePlugin(/^((fs)|(path)|(os)|(crypto)|(source-map-support))$/, /vs(\/|\\)language(\/|\\)typescript(\/|\\)lib/));
 
+    const simpleWorkerPath = 'monaco-editor/esm/vs/editor/common/services/editorSimpleWorker';
+
     generatedConfiguration.module.rules.push({
-      test: require.resolve('monaco-editor/esm/vs/editor/common/services/editorSimpleWorker'),
+      test: require.resolve(simpleWorkerPath),
       use: [{
         loader: 'babel-loader',
         options: {
@@ -24,9 +26,13 @@ build.configureWebpack.mergeConfig({
       }],
     });
 
+    // Create regEx which works for files on macOS and Windows
+    const dirName = path.dirname(simpleWorkerPath);
+    const dirRegEx = `${dirName.replace(/\//g, `[\\/\\\\]`)}$`;
     generatedConfiguration.plugins.push(new webpack.ContextReplacementPlugin(
-      new RegExp('^' + path.dirname(require.resolve('monaco-editor/esm/vs/editor/common/services/editorSimpleWorker')) + '$'),
-      ''
+      new RegExp(dirRegEx),
+      '',
+      {}
     ));
 
     return generatedConfiguration;
