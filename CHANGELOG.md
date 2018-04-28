@@ -1,5 +1,11 @@
 # Changelog - REST API Tester
 
+## [1.1.1] - 2018-04-28
+
+### Fixed
+
+- Fix when API endpoint doesn't return data
+
 ## [1.1.0] - 2018-04-24
 
 ### Added

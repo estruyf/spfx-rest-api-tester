@@ -1,6 +1,18 @@
 {
   "versions": [
     {
+      "version": "1.1.1",
+      "date": "2018-04-28",
+      "changes": {
+        "added": [],
+        "changed": [],
+        "removed": [],
+        "fixed": [
+          "Fix when API endpoint doesn't return data"
+        ]
+      }
+    },
+    {
       "version": "1.1.0",
       "date": "2018-04-24",
       "changes": {

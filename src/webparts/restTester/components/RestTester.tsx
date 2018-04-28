@@ -356,9 +356,16 @@ export default class RestTester extends React.Component<IRestTesterProps, IRestT
         this.setState({
           status: data.status
         });
-        return data.json();
+        return data.text();
       })
       .then((data: any) => {
+        // Try to parse the data
+        try {
+          data = JSON.parse(data);
+        } catch (e) {
+          data = null;
+        }
+
         this.setState({
           data: data,
           loading: false,
